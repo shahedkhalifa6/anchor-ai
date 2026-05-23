@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Anchor - AI Cyber-Zen Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-color: #030712;
+            --accent-color: #00d2ff;
+            --accent-glow: rgba(0, 210, 255, 0.4);
+        }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: #f8fafc; 
+            font-family: 'Quicksand', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        .ar { font-family: 'Tajawal', sans-serif; direction: rtl; }
+        
+        /* Dark Premium Glassmorphism */
+        .glass-card {
+            background: rgba(10, 11, 16, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 2rem;
+            border: 1px solid rgba(0, 210, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(0, 210, 255, 0.05);
+        }
+        
+        /* Premium Glowing Button */
+        .btn-glow {
+            background: linear-gradient(135deg, #0052ff 0%, #00d2ff 100%);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-glow:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Neural Floating Dust Particles */
+        .particle {
+            position: absolute;
+            background: linear-gradient(135deg, #0052ff, #00d2ff);
+            border-radius: 50%;
+            opacity: 0.25;
+            pointer-events: none;
+            animation: float 25s infinite linear;
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(110vh) translateX(0) scale(1); }
+            50% { transform: translateY(50vh) translateX(30px) scale(1.2); }
+            100% { transform: translateY(-10vh) translateX(-20px) scale(0.8); }
+        }
+
+        /* Breathing Aura Expansion */
+        @keyframes neuralPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.2)); opacity: 0.7; }
+            50% { transform: scale(1.2); filter: drop-shadow(0 0 35px rgba(0, 82, 255, 0.6)); opacity: 1; }
+        }
+        .breathe-sphere { 
+            animation: neuralPulse 8s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(0, 210, 255, 0.15) 0%, transparent 75%);
+        }
+
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Smooth Metallic Text Shimmer */
+        .text-silver {
+            background: linear-gradient(135deg, #ffffff 30%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        ::-webkit-scrollbar { width: 0px; }
+    </style>
+</head>
+<body class="select-none relative">
+
+    <!-- Atmospheric Glow & Particles -->
+    <div id="particles-container" class="absolute inset-0 overflow-hidden -z-10"></div>
+    <div class="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-[radial-gradient(circle,rgba(0,82,255,0.08)_0%,transparent_70%)] pointer-events-none -z-10"></div>
+    <div class="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-[radial-gradient(circle,rgba(0,210,255,0.08)_0%,transparent_70%)] pointer-events-none -z-10"></div>
+
+    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col relative overflow-hidden"></div>
+
+    <script>
+        const translations = {
+            ar: {
+                welcome: "مرحباً بك في مرساتك",
+                subtitle: "بوابتك الرقمية الهادئة للسكينة والتأمل العصبي الفاخر.",
+                nameHint: "بماذا نناديك اليوم؟",
+                start: "دخول هالة السكون",
+                howAreYou: "كيف تصف شعورك الآن؟",
+                moods: { calm: "هادئ", stressed: "قلق", tired: "مرهق", balanced: "متزن" },
+                hello: "مرحباً،",
+                streak: "سلسلة الحضور:",
+                totalZen: "إجمالي الهدوء:",
+                mins: "دقيقة",
+                taskTitle: "رحلة السكينة العصبية",
+                taskDesc: "جلسة توازن مدتها 60 ثانية مع مؤثرات صوتية محاكية للطبيعة",
+                startTask: "ابدأ جلسة السكون",
+                soundscape: "المشهد الصوتي المحيط",
+                done: "اكتملت الجلسة بنجاح ✨",
+                back: "عودة",
+                inhale: "شهيــــق ببطء..",
+                exhale: "زفيــــر بهدوء..",
+                sounds: { rain: "مطر ناعم", forest: "غابة هادئة", fire: "مدفأة دافئة" },
+                aiAdvisor: "المستشار العصبي للسكينة ✨",
+                aiPlaceholder: "ما الذي يشغل هالتك الذهنية اليوم؟ اكتب هنا...",
+                aiAsk: "اطلب استشارة ذهنية ✨",
+                aiProcessing: "جاري قراءة هالتك ومزامنتها...",
+                aiAnchorTitle: "توليد مرساة السكينة ✨",
+                aiAnchorBtn: "توليد توجيه عصبي مخصص ✨",
+                aiSoundscapeTitle: "موجات التأمل المخصصة ✨",
+                aiSoundscapePlaceholder: "صف المكان الخيالي الذي تريد التأمل فيه (مثال: واحة هادئة تحت النجوم)...",
+                aiSoundscapeBtn: "توليد سيناريو تأمل مخصص ✨"
+            },
+            en: {
+                welcome: "Welcome to Anchor",
+                subtitle: "Your quiet digital portal to neural zen and mental clarity.",
+                nameHint: "What shall we call you today?",
+                start: "Enter Zen State",
+                howAreYou: "How is your inner flow today?",
+                moods: { calm: "Calm", stressed: "Anxious", tired: "Tired", balanced: "Balanced" },
+                hello: "Hello,",
+                streak: "Daily Streak:",
+                totalZen: "Total Zen Time:",
+                mins: "mins",
+                taskTitle: "Neural Breath Alignment",
+                taskDesc: "A 60-second breathing journey tuned with ambient soundscapes.",
+                startTask: "Initiate Session",
+                soundscape: "Active Soundscape",
+                done: "Session Complete ✨",
+                back: "Back",
+                inhale: "Inhale deeply..",
+                exhale: "Exhale slowly..",
+                sounds: { rain: "Rain", forest: "Forest", fire: "Fire" },
+                aiAdvisor: "Neural Mind-Sync Advisor ✨",
+                aiPlaceholder: "What is clouding your mental space today? Describe here...",
+                aiAsk: "Request Mind Alignment ✨",
+                aiProcessing: "Synchronizing with your aura...",
+                aiSystemPrompt: "You are a futuristic, wise and calm Zen meditation guide.",
+                aiAnchorTitle: "Generate Neural Affirmation ✨",
+                aiAnchorBtn: "Generate Custom Anchor Guide ✨",
+                aiSoundscapeTitle: "AI Personalized Meditation Waves ✨",
+                aiSoundscapePlaceholder: "Describe your ideal imaginary escape (e.g. A neon-lit cyber beach)...",
+                aiSoundscapeBtn: "Synthesize Custom Meditation Scenario ✨"
+            }
+        };
+
+        const state = {
+            lang: localStorage.getItem('anc_lang') || 'en',
+            userName: localStorage.getItem('anc_user') || '',
+            mood: localStorage.getItem('anc_mood') || null,
+            view: 'onboarding',
+            streak: parseInt(localStorage.getItem('anc_streak')) || 1,
+            totalMinutes: parseInt(localStorage.getItem('anc_total_min')) || 0,
+            completedToday: localStorage.getItem('anc_last_done') === new Date().toDateString(),
+            timeLeft: 60,
+            selectedSound: 'rain',
+            aiResponse: "",
+            isAiLoading: false,
+            aiAnchorResponse: "",
+            isAiAnchorLoading: false,
+            aiMeditationResponse: "",
+            isAiMeditationLoading: false
+        };
+
+        // محرك ذكاء اصطناعي محلي فوري (Local Cyber-Zen Simulator)
+        // يقوم بإنشاء استجابات شخصية عميقة وفورية بدون الحاجة لـ API Key أو اتصال بالإنترنت!
+        const localZenEngine = {
+            getAffirmation: (name, streak, mood) => {
+                const moodStr = mood || 'balanced';
+                if (state.lang === 'ar') {
+                    const moodsAr = { calm: "هدوئك المشرق", stressed: "تجاوزك للعقبات", tired: "حاجتك الصادقة للراحة", balanced: "اتزانك العصبي المتين" };
+                    return `عزيزي ${name}، في اليوم ${streak} من مسيرتك نحو الاتزان، نكرم اليوم ${moodsAr[moodStr]}. تنفس بعمق، فأنت في مساحتك الآمنة الآن.`;
+                } else {
+                    const moodsEn = { calm: "radiant tranquility", stressed: "unwavering resilience", tired: "graceful need for deep rest", balanced: "steady neural alignment" };
+                    return `Dear ${name}, on Day ${streak} of your alignment cycle, we honor your ${moodsEn[moodStr]}. Let the mental waves settle; you are exactly where you need to be.`;
+                }
+            },
+            getAdvice: (input, mood) => {
+                const cleaned = (input || "").toLowerCase();
+                if (state.lang === 'ar') {
+                    if (cleaned.includes("عمل") || cleaned.includes("شغل") || cleaned.includes("work") || cleaned.includes("study")) {
+                        return "المهام والالتزامات كأمواج البحر المتتالية، لا تحاول إيقافها، بل تعلم كيف تطفو فوقها بسلام. ركز على الخطوة الحالية فقط.";
+                    }
+                    if (cleaned.includes("حزن") || cleaned.includes("تعب") || cleaned.includes("sad") || cleaned.includes("tired")) {
+                        return "الغيوم المظلمة تمر دائماً لتترك خلفها سماءً صافية. جسدك وروحك يطلبون هدنة؛ امنحهم غطاء السكينة دون لوم.";
+                    }
+                    if (cleaned.includes("قلق") || cleaned.includes("خوف") || cleaned.includes("anxious") || cleaned.includes("scared")) {
+                        return "القلق هو مجرد طاقة تبحث عن مخرج. ضع يدك على قلبك، تنفس ببطء، وتذكر أنك في أمان مطلق في هذه اللحظة.";
+                    }
+                    return "انظر لداخلك الآن بفضول لطيف. كل فوضى خارجية تتلاشى أمام مركز السكون الذي يسكن عمق روحك.";
+                } else {
+                    if (cleaned.includes("work") || cleaned.includes("study") || cleaned.includes("busy")) {
+                        return "Tasks are like falling leaves; let them settle one by one. Do not rush the forest. Focus only on the single breath ahead.";
+                    }
+                    if (cleaned.includes("sad") || cleaned.includes("hurt") || cleaned.includes("down")) {
+                        return "Rain is essential for the earth to bloom. Allow your mind to rest and heal. Today is a sanctuary of restoration for you.";
+                    }
+                    if (cleaned.includes("anxious") || cleaned.includes("stress") || cleaned.includes("fear")) {
+                        return "Anxiety is merely energy looking for direction. Ground your feet, feel the present moment, and know that you are safe.";
+                    }
+                    return "Observe the passing thoughts without holding onto them. You are the sky; the thoughts are just temporary weather.";
+                }
+            },
+            getMeditation: (input) => {
+                const destination = input || (state.lang === 'ar' ? "فضاء أزرق هادئ" : "a serene blue space");
+                if (state.lang === 'ar') {
+                    return `تخيل نفسك الآن تطفو في: [${destination}]. تشعر بنسمة نيون باردة ومريحة تلامس جبهتك، وتتناغم موجات دماغك مع نبضات المكان الهادئة. أنت مستقر تماماً.`;
+                } else {
+                    return `Visualize yourself gently resting within: [${destination}]. Feel a crisp, cool cyber-breeze brushing against your skin, aligning your brainwaves with the local rhythm. You are at complete peace.`;
+                }
+            }
+        };
+
+        function simulateProcessing(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function getAiAdvice() {
+            const input = document.getElementById('aiInp')?.value || "";
+            state.isAiLoading = true;
+            render();
+            
+            await simulateProcessing(1200); // محاكاة زمن التفكير الفاخر للذكاء الاصطناعي
+            state.aiResponse = localZenEngine.getAdvice(input, state.mood);
+            state.isAiLoading = false;
+            render();
+        }
+
+        async function getDynamicAnchor() {
+            state.isAiAnchorLoading = true;
+            render();
+            
+            await simulateProcessing(1000); // محاكاة زمن التوليد الفاخر
+            state.aiAnchorResponse = localZenEngine.getAffirmation(state.userName, state.streak, state.mood);
+            state.isAiAnchorLoading = false;
+            render();
+        }
+
+        async function generateMeditationScenario() {
+            const scenarioInput = document.getElementById('meditationPromptInp')?.value || "";
+            if (!scenarioInput.trim()) return;
+            
+            state.isAiMeditationLoading = true;
+            render();
+            
+            await simulateProcessing(1400); // محاكاة المعالجة البصرية العصبية الفاخرة
+            state.aiMeditationResponse = localZenEngine.getMeditation(scenarioInput);
+            state.isAiMeditationLoading = false;
+            render();
+        }
+
+        function t(key) {
+            const keys = key.split('.');
+            let val = translations[state.lang];
+            for (const k of keys) val = val[k];
+            return val;
+        }
+
+        function save() {
+            localStorage.setItem('anc_lang', state.lang);
+            localStorage.setItem('anc_user', state.userName);
+            localStorage.setItem('anc_streak', state.streak);
+            localStorage.setItem('anc_total_min', state.totalMinutes);
+            localStorage.setItem('anc_mood', state.mood || '');
+            localStorage.setItem('anc_last_done', state.completedToday ? new Date().toDateString() : '');
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 8 + 3;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = (Math.random() * 12 + 18) + 's';
+                p.style.animationDelay = Math.random() * -10 + 's';
+                container.appendChild(p);
+            }
+        }
+
+        function updateTheme(mood) {
+            const themes = {
+                calm: { bg: "#020617", accent: "#00d2ff", glow: "rgba(0,210,255,0.4)" },
+                stressed: { bg: "#080312", accent: "#6366f1", glow: "rgba(99,102,241,0.4)" },
+                tired: { bg: "#0b040f", accent: "#a855f7", glow: "rgba(168,85,247,0.4)" },
+                balanced: { bg: "#020813", accent: "#00e5a3", glow: "rgba(0,229,163,0.4)" },
+                default: { bg: "#030712", accent: "#00d2ff", glow: "rgba(0,210,255,0.4)" }
+            };
+            const theme = themes[mood] || themes.default;
+            document.body.style.setProperty('--bg-color', theme.bg);
+            document.body.style.setProperty('--accent-color', theme.accent);
+            document.body.style.setProperty('--accent-glow', theme.glow);
+        }
+
+        function render() {
+            const container = document.getElementById('app');
+            container.className = `max-w-md mx-auto min-h-screen flex flex-col justify-between pb-6 ${state.lang === 'ar' ? 'ar' : ''}`;
+            container.dir = state.lang === 'ar' ? 'rtl' : 'ltr';
+
+            if (state.userName && state.view === 'onboarding') state.view = 'home';
+
+            if (state.view === 'onboarding') {
+                container.innerHTML = `
+                    <div class="flex-1 flex flex-col items-center justify-center p-8 text-center fade-in">
+                        <!-- Premium Glowing Cyber Logo -->
+                        <div class="w-28 h-28 bg-[#090b10] rounded-[2.5rem] flex items-center justify-center mb-8 relative border border-[#00d2ff]/30 shadow-[0_0_40px_rgba(0,210,255,0.25)]">
+                             <div class="absolute inset-0 rounded-[2.5rem] bg-[radial-gradient(circle,rgba(0,210,255,0.15)_0%,transparent_70%)]"></div>
+                             <svg class="text-[#00d2ff] w-14 h-14 relative z-10 filter drop-shadow-[0_0_8px_rgba(0,210,255,0.6)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                             </svg>
+                        </div>
+                        <h1 class="text-3xl font-bold tracking-tight text-white mb-3 text-silver">${t('welcome')}</h1>
+                        <p class="text-slate-400 mb-10 text-sm leading-relaxed max-w-[280px]">${t('subtitle')}</p>
+                        <div class="w-full space-y-4 max-w-[320px]">
+                            <input type="text" id="nameInp" placeholder="${t('nameHint')}" class="w-full p-4 bg-[#0a0b10]/80 border border-[#00d2ff]/25 rounded-2xl text-center outline-none focus:ring-2 focus:ring-[#00d2ff] text-white shadow-[inset_0_0_10px_rgba(0,0,0,0.8)]">
+                            <button onclick="startApp()" class="w-full btn-glow text-white py-4 rounded-2xl font-bold tracking-wider uppercase text-xs">${t('start')}</button>
+                        </div>
+                    </div>
+                `;
+            } else if (state.view === 'home') {
+                container.innerHTML = `
+                    <div class="p-6 pb-40 fade-in flex-1 overflow-y-auto">
+                        <header class="flex justify-between items-start mb-8 pt-6">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white tracking-tight text-silver">${t('hello')} ${state.userName}</h2>
+                                <p class="text-[#00d2ff]/70 text-[10px] mt-1 font-bold tracking-[0.15em] uppercase">SYSTEM ALIGNED & READY</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <div class="bg-[#0a0b10]/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-[10px] font-bold text-[#00d2ff] border border-[#00d2ff]/30 shadow-[0_0_12px_rgba(0,210,255,0.2)]">
+                                    ${t('streak')} ${state.streak} 🔥
+                                </div>
+                            </div>
+                        </header>
+
+                        <!-- Dynamic Neural Affirmation ✨ -->
+                        <div class="glass-card p-6 mb-8 relative overflow-hidden bg-gradient-to-br from-[#020617] to-indigo-950/30 border-blue-500/20">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-[#00d2ff]">✨</span>
+                                <h3 class="font-bold text-xs uppercase tracking-wider text-slate-300">${t('aiAnchorTitle')}</h3>
+                            </div>
+                            ${state.aiAnchorResponse ? `
+                                <p class="text-slate-200 text-sm italic leading-relaxed mb-4 fade-in">"${state.aiAnchorResponse}"</p>
+                                <button onclick="state.aiAnchorResponse='';render()" class="text-[10px] font-bold text-[#00d2ff] tracking-widest uppercase hover:underline">${t('back')}</button>
+                            ` : `
+                                <button onclick="getDynamicAnchor()" class="w-full btn-glow text-white py-3.5 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2" ${state.isAiAnchorLoading ? 'disabled' : ''}>
+                                    ${state.isAiAnchorLoading ? `<span class="animate-spin text-lg">🌀</span> ${t('aiProcessing')}` : t('aiAnchorBtn')}
+                                </button>
+                            `}
+                        </div>
+
+                        <!-- Cyber AI Mind-Sync Section ✨ -->
+                        <div class="glass-card p-6 mb-8 relative overflow-hidden bg-gradient-to-br from-[#0a0b10]/90 to-blue-950/20">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle,rgba(0,210,255,0.06)_0%,transparent_70%)] pointer-events-none"></div>
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="text-[#00d2ff] filter drop-shadow-[0_0_5px_#00d2ff]">✨</span>
+                                <h3 class="font-bold text-xs uppercase tracking-wider text-slate-300">${t('aiAdvisor')}</h3>
+                            </div>
+                            
+                            ${state.aiResponse ? `
+                                <div class="p-5 bg-gradient-to-br from-[#0052ff] to-[#00d2ff] text-white rounded-2xl text-sm leading-relaxed mb-4 fade-in shadow-[0_0_15px_rgba(0,210,255,0.3)] border border-[#00d2ff]/30">
+                                    ${state.aiResponse}
+                                </div>
+                                <button onclick="state.aiResponse='';render()" class="text-[10px] font-bold text-[#00d2ff] tracking-widest uppercase hover:underline mb-1">${t('back')}</button>
+                            ` : `
+                                <textarea id="aiInp" placeholder="${t('aiPlaceholder')}" class="w-full p-4 bg-black/40 border border-[#00d2ff]/20 rounded-2xl text-xs outline-none focus:ring-1 focus:ring-[#00d2ff] text-slate-300 mb-4 h-24 resize-none transition-all placeholder:text-slate-600 shadow-inner"></textarea>
+                                <button onclick="getAiAdvice()" class="w-full btn-glow text-white py-3.5 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2" ${state.isAiLoading ? 'disabled' : ''}>
+                                    ${state.isAiLoading ? `<span class="animate-spin text-lg">🌀</span> ${t('aiProcessing')}` : t('aiAsk')}
+                                </button>
+                            `}
+                        </div>
+
+                        <!-- AI Custom Soundscape Generator ✨ -->
+                        <div class="glass-card p-6 mb-8 relative overflow-hidden bg-gradient-to-br from-[#050508] to-purple-950/20 border-purple-500/20">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="text-purple-400">✨</span>
+                                <h3 class="font-bold text-xs uppercase tracking-wider text-slate-300">${t('aiSoundscapeTitle')}</h3>
+                            </div>
+                            ${state.aiMeditationResponse ? `
+                                <div class="p-4 bg-purple-950/60 border border-purple-500/30 text-purple-200 rounded-2xl text-xs leading-relaxed mb-4 fade-in">
+                                    ${state.aiMeditationResponse}
+                                </div>
+                                <button onclick="state.aiMeditationResponse='';render()" class="text-[10px] font-bold text-purple-400 tracking-widest uppercase hover:underline">${t('back')}</button>
+                            ` : `
+                                <input type="text" id="meditationPromptInp" placeholder="${t('aiSoundscapePlaceholder')}" class="w-full p-3 bg-black/40 border border-purple-500/20 rounded-xl text-xs outline-none focus:ring-1 focus:ring-purple-400 text-slate-300 mb-3 shadow-inner">
+                                <button onclick="generateMeditationScenario()" class="w-full bg-gradient-to-r from-purple-800 to-indigo-600 text-white py-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:opacity-90 transition-all" ${state.isAiMeditationLoading ? 'disabled' : ''}>
+                                    ${state.isAiMeditationLoading ? `<span class="animate-spin text-lg">🌀</span> ${t('aiProcessing')}` : t('aiSoundscapeBtn')}
+                                </button>
+                            `}
+                        </div>
+
+                        <div class="glass-card p-6 mb-8">
+                            <h3 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-5">${t('howAreYou')}</h3>
+                            <div class="grid grid-cols-4 gap-3">
+                                ${Object.entries(translations[state.lang].moods).map(([k, v]) => `
+                                    <button onclick="setMood('${k}')" class="flex flex-col items-center p-3 rounded-2xl border transition-all ${state.mood === k ? 'bg-gradient-to-tr from-[#0052ff] to-[#00d2ff] text-white border-transparent shadow-[0_0_15px_var(--accent-glow)] scale-105' : 'bg-black/20 text-slate-400 border-[#00d2ff]/10 hover:border-[#00d2ff]/30'}">
+                                        <span class="text-2xl mb-1 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">${getEmoji(k)}</span>
+                                        <span class="text-[9px] font-bold uppercase tracking-wider mt-1">${v}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="relative group cursor-pointer" onclick="startSession()">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-[#0052ff] to-[#00d2ff] rounded-[2.5rem] blur opacity-30 group-hover:opacity-60 transition duration-700"></div>
+                            <div class="relative bg-gradient-to-br from-[#0a0b10] to-[#040814] border border-[#00d2ff]/20 p-8 rounded-[2.5rem] text-white shadow-2xl overflow-hidden">
+                                <div class="relative z-10">
+                                    <h3 class="text-2xl font-bold tracking-tight text-silver mb-2">${t('taskTitle')}</h3>
+                                    <p class="text-slate-400 text-xs mb-8 leading-relaxed">${t('taskDesc')}</p>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-xs uppercase tracking-wider text-[#00d2ff]">${state.completedToday ? t('done') : t('startTask')}</span>
+                                        <div class="w-12 h-12 bg-gradient-to-tr from-[#0052ff] to-[#00d2ff] rounded-full flex items-center justify-center text-white shadow-[0_0_15px_rgba(0,210,255,0.4)]">
+                                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="absolute -top-10 -right-10 w-40 h-40 bg-[radial-gradient(circle,rgba(0,210,255,0.1)_0%,transparent_70%)] blur-2xl"></div>
+                            </div>
+                        </div>
+                    </div>
+                    ${renderNav()}
+                `;
+            } else if (state.view === 'session') {
+                container.innerHTML = `
+                    <div class="flex-1 flex flex-col items-center justify-center p-10 text-center fade-in">
+                        <h2 class="text-xs font-bold text-[#00d2ff] mb-16 uppercase tracking-[0.4em] filter drop-shadow-[0_0_5px_rgba(0,210,255,0.5)]">${t('taskTitle')}</h2>
+                        <div class="relative flex items-center justify-center mb-20">
+                            <div class="absolute w-80 h-80 breathe-sphere rounded-full"></div>
+                            <div class="w-64 h-64 glass-card flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.8)] z-10 border-[#00d2ff]/30">
+                                <span id="timerTxt" class="text-7xl font-light text-white tracking-tighter text-silver">${state.timeLeft}</span>
+                            </div>
+                        </div>
+                        <p id="breathPrompt" class="text-2xl font-light text-slate-300 mb-16 h-10 transition-all duration-1000 tracking-wide">...</p>
+                        <button onclick="endSession()" class="px-12 py-4 bg-[#0a0b10] border border-[#00d2ff]/20 text-slate-400 rounded-full text-xs font-bold tracking-wider uppercase hover:border-[#00d2ff]/50 active:scale-95 transition-all shadow-md">
+                            ${t('back')}
+                        </button>
+                    </div>
+                `;
+                updateSessionUI();
+            }
+        }
+
+        function renderNav() {
+            return `
+                <nav class="fixed bottom-8 left-8 right-8 h-20 glass-card flex justify-around items-center px-6 shadow-2xl border-[#00d2ff]/20">
+                    <button onclick="state.view='home';render()" class="p-4 ${state.view === 'home' ? 'text-[#00d2ff] filter drop-shadow-[0_0_5px_#00d2ff]' : 'text-slate-500'} transition-all hover:scale-110">
+                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                    </button>
+                    <div class="w-px h-8 bg-[#00d2ff]/15"></div>
+                    <button onclick="toggleLang()" class="p-4 text-slate-400 font-bold text-xs tracking-widest uppercase hover:text-[#00d2ff]">
+                        ${state.lang === 'ar' ? 'English' : 'العربية'}
+                    </button>
+                </nav>
+            `;
+        }
+
+        function startApp() {
+            const val = document.getElementById('nameInp').value;
+            if (val.trim()) { 
+                state.userName = val.trim(); 
+                state.view = 'home'; 
+                save(); 
+                render(); 
+            }
+        }
+
+        function setMood(m) { 
+            state.mood = m; 
+            updateTheme(m);
+            save();
+            render(); 
+        }
+        
+        function toggleLang() { 
+            state.lang = state.lang === 'ar' ? 'en' : 'ar'; 
+            save(); 
+            render(); 
+        }
+
+        let sessInt, audioCtx, noise, gain, filter;
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            noise = audioCtx.createBufferSource();
+            noise.buffer = buffer; noise.loop = true;
+            filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass'; filter.frequency.value = 500;
+            gain = audioCtx.createGain(); gain.gain.value = 0;
+            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+            noise.start();
+        }
+
+        function startSession() {
+            if (state.completedToday) return;
+            state.view = 'session';
+            state.timeLeft = 60;
+            render();
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            gain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 3);
+            sessInt = setInterval(() => {
+                state.timeLeft--;
+                if (state.timeLeft <= 0) {
+                    clearInterval(sessInt);
+                    state.completedToday = true;
+                    state.streak++;
+                    state.totalMinutes++;
+                    save();
+                    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
+                }
+                updateSessionUI();
+            }, 1000);
+        }
+
+        function updateSessionUI() {
+            const txt = document.getElementById('timerTxt');
+            const prompt = document.getElementById('breathPrompt');
+            if (!txt || !prompt) return;
+            txt.innerText = state.timeLeft;
+            const cycle = state.timeLeft % 8;
+            prompt.innerText = cycle >= 4 ? t('inhale') : t('exhale');
+        }
+
+        function endSession() {
+            clearInterval(sessInt);
+            if (gain) gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+            state.view = 'home';
+            render();
+        }
+
+        function getEmoji(m) { return { calm: "🍃", stressed: "🌀", tired: "🕯️", balanced: "⚖️" }[m]; }
+
+        window.onload = () => { 
+            createParticles(); 
+            if (state.mood) updateTheme(state.mood);
+            render(); 
+        };
+    </script>
+</body>
+</html>
